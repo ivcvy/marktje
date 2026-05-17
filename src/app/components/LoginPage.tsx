@@ -3,19 +3,16 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ShoppingBasket, Eye, EyeOff } from "lucide-react";
 import { BRAND_ACCENT } from "../theme";
+import { supabase } from "../../lib/supabase";
 
-interface LoginPageProps {
-  onLogin: (user: { name: string; email: string; avatar: string }) => void;
-}
-
-export function LoginPage({ onLogin }: LoginPageProps) {
+export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     if (!email || !password) {
@@ -23,19 +20,11 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      if (email === import.meta.env.VITE_EMAIL && password === import.meta.env.VITE_PASSWORD) {
-        const name = email.split("@")[0];
-        onLogin({
-          name: name.charAt(0).toUpperCase() + name.slice(1),
-          email,
-          avatar: name.slice(0, 2).toUpperCase(),
-        });
-      } else {
-        setError("Incorrect email or password.");
-        setLoading(false);
-      }
-    }, 600);
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) {
+      setError("Incorrect email or password.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -103,7 +92,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </form>
 
         <p className="text-xs text-gray-300 text-center mt-8">
-          personal use only · credentials set in code
+          personal use only
         </p>
       </div>
     </div>

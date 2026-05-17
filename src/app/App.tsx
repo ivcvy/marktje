@@ -14,76 +14,94 @@ import {
 import { ShoppingCart, PlusCircle, BarChart2, LogOut } from "lucide-react";
 import type { PriceEntry, User } from "./types";
 import { BRAND_ACCENT } from "./theme";
-
-const STORAGE_KEY = "grocerytrack-entries";
-const USER_KEY = "grocerytrack-user";
-
-function loadEntries(): PriceEntry[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return [];
-}
-
-function saveEntries(entries: PriceEntry[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-}
-
-function loadUser(): User | null {
-  try {
-    const stored = localStorage.getItem(USER_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return null;
-}
-
-function saveUser(user: User | null) {
-  if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
-  else localStorage.removeItem(USER_KEY);
-}
+import { supabase } from "../lib/supabase";
+import type { Session } from "@supabase/supabase-js";
 
 type Tab = "input" | "browse";
 
+function userFromSession(session: Session): User {
+  const email = session.user.email ?? "";
+  const name = email.split("@")[0];
+  return {
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    email,
+    avatar: name.slice(0, 2).toUpperCase(),
+  };
+}
+
 export default function App() {
-  const [user, setUser] = useState<User | null>(() => loadUser());
-  const [entries, setEntries] = useState<PriceEntry[]>(() => loadEntries());
+  const [user, setUser] = useState<User | null>(null);
+  const [entries, setEntries] = useState<PriceEntry[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>("browse");
+  const [booting, setBooting] = useState(true);
 
   useEffect(() => {
-    saveEntries(entries);
-  }, [entries]);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setUser(userFromSession(session));
+        fetchEntries();
+      }
+      setBooting(false);
+    });
 
-  function handleLogin(u: User) {
-    setUser(u);
-    saveUser(u);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUser(userFromSession(session));
+        fetchEntries();
+      } else {
+        setUser(null);
+        setEntries([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function fetchEntries() {
+    const { data } = await supabase
+      .from("price_entries")
+      .select("id, name, price, date, store")
+      .order("date", { ascending: false });
+    if (data) setEntries(data as PriceEntry[]);
   }
 
-  function handleLogout() {
-    setUser(null);
-    saveUser(null);
+  async function handleAdd(entry: PriceEntry) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from("price_entries").insert({
+      ...entry,
+      user_id: session.user.id,
+    });
+    setEntries((prev) => [entry, ...prev]);
   }
 
-  function handleAdd(entry: PriceEntry) {
-    setEntries((prev) => [...prev, entry]);
-  }
-
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
+    await supabase.from("price_entries").delete().eq("id", id);
     setEntries((prev) => prev.filter((e) => e.id !== id));
   }
 
-  function handleImportCSV(imported: PriceEntry[]) {
-    setEntries((prev) => {
-      const existingIds = new Set(prev.map((e) => e.id));
-      const newOnes = imported.filter((e) => !existingIds.has(e.id));
-      return [...prev, ...newOnes];
-    });
+  async function handleImportCSV(imported: PriceEntry[]) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const existingIds = new Set(entries.map((e) => e.id));
+    const newOnes = imported.filter((e) => !existingIds.has(e.id));
+    if (newOnes.length === 0) return;
+    await supabase.from("price_entries").insert(
+      newOnes.map((e) => ({ ...e, user_id: session.user.id }))
+    );
+    setEntries((prev) => [...newOnes, ...prev]);
   }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+  }
+
+  if (booting) return null;
 
   if (!user) {
     return (
       <>
-        <LoginPage onLogin={handleLogin} />
+        <LoginPage />
         <Toaster />
       </>
     );
