@@ -92,7 +92,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
 
   const colors = useMemo(() => getChartColors(chartItems.length), [chartItems.length]);
 
-  function handleAdd(e: React.FormEvent) {
+  function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const priceNum = parseFloat(newPrice);
     if (!newName.trim() || isNaN(priceNum) || priceNum <= 0 || !newDate) {
@@ -267,17 +267,17 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-50">
-                <th className="text-left text-xs text-gray-400 font-medium px-5 py-2.5">Item</th>
-                <th className="text-left text-xs text-gray-400 font-medium px-3 py-2.5">Store</th>
-                <th className="text-left text-xs text-gray-400 font-medium px-3 py-2.5">Date</th>
-                <th className="text-right text-xs text-gray-400 font-medium px-3 py-2.5">Price</th>
-                <th className="w-16 px-3"></th>
+                <th className="text-left text-xs text-gray-400 font-medium px-2 sm:px-5 py-2.5">Item</th>
+                <th className="text-left text-xs text-gray-400 font-medium px-2 sm:px-3 py-2.5">Store</th>
+                <th className="text-left text-xs text-gray-400 font-medium px-2 sm:px-3 py-2.5 hidden sm:table-cell">Date</th>
+                <th className="text-right text-xs text-gray-400 font-medium px-2 sm:px-3 py-2.5">Price</th>
+                <th className="w-12 sm:w-16 px-1 sm:px-3"></th>
               </tr>
             </thead>
             <tbody>
               {/* Add row */}
               <tr className="border-b border-gray-50" style={{ backgroundColor: `color-mix(in srgb, var(--brand-wash) 60%, white)` }}>
-                <td className="px-4 py-2">
+                <td className="px-2 sm:px-4 py-2">
                   <input
                     placeholder="item name"
                     value={newName}
@@ -285,7 +285,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                     className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-300"
                   />
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-2 sm:px-3 py-2">
                   <input
                     placeholder="store"
                     value={newStore}
@@ -293,7 +293,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                     className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-300"
                   />
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-2 sm:px-3 py-2 hidden sm:table-cell">
                   <input
                     type="date"
                     value={newDate}
@@ -301,7 +301,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                     className="w-full bg-transparent outline-none text-sm text-gray-700"
                   />
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-2 sm:px-3 py-2">
                   <input
                     type="number"
                     step="0.01"
@@ -310,10 +310,10 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                     value={newPrice}
                     onChange={e => setNewPrice(e.target.value)}
                     className="w-full bg-transparent outline-none text-sm text-right font-mono text-gray-700 placeholder:text-gray-300"
-                    onKeyDown={e => e.key === "Enter" && handleAdd(e as unknown as React.FormEvent)}
+                    onKeyDown={e => e.key === "Enter" && handleAdd(e as unknown as React.FormEvent<HTMLFormElement>)}
                   />
                 </td>
-                <td className="px-3 py-2 text-right">
+                <td className="px-1 sm:px-3 py-2 text-right">
                   <button
                     onClick={handleAdd as unknown as React.MouseEventHandler}
                     className="text-white rounded-lg px-2.5 py-1 text-xs flex items-center gap-1 ml-auto"
@@ -336,7 +336,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                 const isEditing = editingId === entry.id;
                 return (
                   <tr key={entry.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/40 group">
-                    <td className="px-4 py-2.5">
+                    <td className="px-2 sm:px-4 py-2.5 max-w-[120px] sm:max-w-none">
                       {isEditing ? (
                         <input
                           value={editDraft.name ?? ""}
@@ -344,10 +344,10 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                           className="w-full bg-gray-50 rounded-lg px-2 py-0.5 outline-none text-sm border border-gray-200"
                         />
                       ) : (
-                        <span className="text-gray-800 font-medium">{entry.name}</span>
+                        <span className="text-gray-800 font-medium truncate block">{entry.name}</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-2 sm:px-3 py-2.5">
                       {isEditing ? (
                         <input
                           value={editDraft.store ?? ""}
@@ -360,7 +360,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-400 text-sm">
+                    <td className="px-2 sm:px-3 py-2.5 text-gray-400 text-sm hidden sm:table-cell">
                       {isEditing ? (
                         <input
                           type="date"
@@ -370,7 +370,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                         />
                       ) : entry.date}
                     </td>
-                    <td className="px-3 py-2.5 text-right font-mono text-gray-800 text-sm">
+                    <td className="px-2 sm:px-3 py-2.5 text-right font-mono text-gray-800 text-sm">
                       {isEditing ? (
                         <input
                           type="number"
@@ -381,7 +381,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                         />
                       ) : `$${entry.price.toFixed(2)}`}
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-1 sm:px-3 py-2.5">
                       <div className="flex items-center justify-end gap-1">
                         {isEditing ? (
                           <>
@@ -390,8 +390,8 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                           </>
                         ) : (
                           <>
-                            <button onClick={() => startEdit(entry)} className="text-gray-400 hover:text-gray-600 p-1 sm:text-gray-200 sm:hover:text-gray-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Pencil size={12} /></button>
-                            <button onClick={() => onDelete(entry.id)} className="text-gray-400 hover:text-red-400 p-1 sm:text-gray-200 sm:hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
+                            <button onClick={() => startEdit(entry)} className="text-gray-200 hover:text-gray-400 p-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity"><Pencil size={12} /></button>
+                            <button onClick={() => onDelete(entry.id)} className="text-gray-200 hover:text-red-300 p-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
                           </>
                         )}
                       </div>
