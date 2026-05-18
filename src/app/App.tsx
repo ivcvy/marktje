@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Toaster } from "./components/ui/sonner";
 import { LoginPage } from "./components/LoginPage";
-import { InputView } from "./components/InputView";
-import { BrowseView } from "./components/BrowseView";
+import { MergedView } from "./components/MergedView";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import {
   DropdownMenu,
@@ -11,13 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./components/ui/dropdown-menu";
-import { ShoppingCart, PlusCircle, BarChart2, LogOut } from "lucide-react";
+import { ShoppingCart, LogOut } from "lucide-react";
 import type { PriceEntry, User } from "./types";
 import { BRAND_ACCENT } from "./theme";
 import { supabase } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
-
-type Tab = "input" | "browse";
 
 function userFromSession(session: Session): User {
   const email = session.user.email ?? "";
@@ -32,7 +29,6 @@ function userFromSession(session: Session): User {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [entries, setEntries] = useState<PriceEntry[]>([]);
-  const [activeTab, setActiveTab] = useState<Tab>("browse");
   const [booting, setBooting] = useState(true);
 
   useEffect(() => {
@@ -92,6 +88,16 @@ export default function App() {
     setEntries((prev) => [...newOnes, ...prev]);
   }
 
+  async function handleUpdate(updated: PriceEntry) {
+    await supabase.from("price_entries").update({
+      name: updated.name,
+      price: updated.price,
+      date: updated.date,
+      store: updated.store,
+    }).eq("id", updated.id);
+    setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut();
   }
@@ -119,31 +125,6 @@ export default function App() {
             <span className="font-semibold text-gray-700 tracking-tight">marktje</span>
           </div>
 
-          <nav className="flex items-center bg-gray-100 rounded-xl p-1 gap-0.5">
-            <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                activeTab === "browse"
-                  ? "bg-white shadow-sm text-gray-800 font-medium"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("browse")}
-            >
-              <BarChart2 size={14} />
-              <span className="hidden sm:inline">Browse</span>
-            </button>
-            <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                activeTab === "input"
-                  ? "bg-white shadow-sm text-gray-800 font-medium"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("input")}
-            >
-              <PlusCircle size={14} />
-              <span className="hidden sm:inline">Add</span>
-            </button>
-          </nav>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-orange-200">
@@ -170,16 +151,13 @@ export default function App() {
       </header>
 
       <main className="max-w-4xl mx-auto px-5 py-7">
-        {activeTab === "input" ? (
-          <InputView
-            entries={entries}
-            onAdd={handleAdd}
-            onDelete={handleDelete}
-            onImportCSV={handleImportCSV}
-          />
-        ) : (
-          <BrowseView entries={entries} />
-        )}
+        <MergedView
+          entries={entries}
+          onAdd={handleAdd}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+          onImportCSV={handleImportCSV}
+        />
       </main>
     </div>
   );
