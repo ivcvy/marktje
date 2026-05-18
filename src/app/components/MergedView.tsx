@@ -268,7 +268,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
             <thead>
               <tr className="border-b border-gray-50">
                 <th className="text-left text-xs text-gray-400 font-medium px-5 py-2.5">Item</th>
-                <th className="text-left text-xs text-gray-400 font-medium px-3 py-2.5 hidden sm:table-cell">Store</th>
+                <th className="text-left text-xs text-gray-400 font-medium px-3 py-2.5">Store</th>
                 <th className="text-left text-xs text-gray-400 font-medium px-3 py-2.5">Date</th>
                 <th className="text-right text-xs text-gray-400 font-medium px-3 py-2.5">Price</th>
                 <th className="w-16 px-3"></th>
@@ -285,7 +285,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                     className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-300"
                   />
                 </td>
-                <td className="px-3 py-2 hidden sm:table-cell">
+                <td className="px-3 py-2">
                   <input
                     placeholder="store"
                     value={newStore}
@@ -347,7 +347,7 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                         <span className="text-gray-800 font-medium">{entry.name}</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 hidden sm:table-cell">
+                    <td className="px-3 py-2.5">
                       {isEditing ? (
                         <input
                           value={editDraft.store ?? ""}
@@ -390,8 +390,8 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                           </>
                         ) : (
                           <>
-                            <button onClick={() => startEdit(entry)} className="text-gray-200 hover:text-gray-400 p-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Pencil size={12} /></button>
-                            <button onClick={() => onDelete(entry.id)} className="text-gray-200 hover:text-red-400 p-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
+                            <button onClick={() => startEdit(entry)} className="text-gray-400 hover:text-gray-600 p-1 sm:text-gray-200 sm:hover:text-gray-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Pencil size={12} /></button>
+                            <button onClick={() => onDelete(entry.id)} className="text-gray-400 hover:text-red-400 p-1 sm:text-gray-200 sm:hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
                           </>
                         )}
                       </div>
