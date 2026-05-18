@@ -390,8 +390,8 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                           </>
                         ) : (
                           <>
-                            <button onClick={() => startEdit(entry)} className="text-gray-200 hover:text-gray-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Pencil size={12} /></button>
-                            <button onClick={() => onDelete(entry.id)} className="text-gray-200 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
+                            <button onClick={() => startEdit(entry)} className="text-gray-200 hover:text-gray-400 p-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Pencil size={12} /></button>
+                            <button onClick={() => onDelete(entry.id)} className="text-gray-200 hover:text-red-400 p-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
                           </>
                         )}
                       </div>
