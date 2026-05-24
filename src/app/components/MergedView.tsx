@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer,
+  Tooltip, ResponsiveContainer,
 } from "recharts";
 import { PlusCircle, Trash2, Upload, Download, Pencil, Check, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { toast } from "sonner";
@@ -211,10 +211,6 @@ export function MergedView({ entries, onAdd, onDelete, onUpdate, onImportCSV }: 
                   formatter={(value: number) => [`$${value.toFixed(2)}`, ""]}
                   labelStyle={{ fontWeight: 600, color: "#555" }}
                   contentStyle={{ borderRadius: 12, border: "1px solid #f0f0f0", boxShadow: "0 4px 12px rgba(0,0,0,0.06)", fontSize: 13 }}
-                />
-                <Legend
-                  wrapperStyle={{ fontSize: 12, color: "#aaa", cursor: "pointer" }}
-                  onClick={(e: { value: string }) => setFilter(filter === e.value ? "__all__" : e.value)}
                 />
                 {chartItems.map((item, idx) => {
                   const color = colors[idx] ?? BRAND_ACCENT;
